@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-900 text-white min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="bg-gray-800 py-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="#" class="text-xl font-semibold">Typing Test</a>
+            <div class="flex space-x-6">
+                <span id="timer" class="text-lg font-bold">Time: 0s</span>
+                <span id="wpm" class="text-lg font-bold">WPM: 0</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto mt-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+            <!-- Typing Section -->
+            <div class="md:col-span-2">
+                <div id="text-to-type" class="bg-gray-700 p-6 rounded-lg mb-6 text-lg">
+                    Click on a paragraph to start typing.
+                </div>
+
+                <textarea id="typing-input"
+                    class="w-full p-6 rounded-lg bg-gray-700 border-2 border-gray-600 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                    placeholder="Start typing here..." disabled></textarea>
+
+            </div>
+
+            <!-- Sidebar Section -->
+            <div>
+                <div class="bg-gray-800 p-6 rounded-lg max-h-[80vh] overflow-y-auto">
+                    <h4 class="text-lg font-semibold mb-4">Select a paragraph:</h4>
+                    <ul id="para" class="space-y-2">
+                        <!-- List of paragraphs will go here -->
+                    </ul>
+                </div>
+            </div>
+            
+
+        </div>
+    </div>
+
+
+    <script>
+        const paragraphs = [
+            "Better late than never.",
+            "All that glitters is not gold.",
+            "Actions speak louder than words.",
+            "Birds of a feather flock together.",
+            "A picture is worth a thousand words.",
+            "She sells seashells by the seashore.",
+            "To be or not to be, that is the question.",
+            "The quick brown fox jumps over the lazy dog.",
+            "A journey of a thousand miles begins with a single step.",
+            "How much wood would a woodchuck chuck if a woodchuck could chuck wood?",
+            "An apple a day keeps the doctor away.",
+            "Don't count your chickens before they hatch.",
+            "Don't cry over spilled milk.",
+            "Don't put all your eggs in one basket.",
+            "Don't take it for granted.",
+            "Easy does it.",
+            "Every cloud has a silver lining.",
+            "Every dog has its day.",
+            "Give someone the benefit of the doubt.",
+            "Good things come to those who wait.",
+            "Honesty is the best policy.",
+            "If at first you don't succeed, try, try again.",
+            "In for a penny, in for a pound.",
+            "It's raining cats and dogs.",
+            "Let sleeping dogs lie.",
+            "Make hay while the sun shines.",
+            "Money can't buy happiness.",
+            "No man is an island.",
+            "No news is good news.",
+            "One man's trash is another man's treasure.",
+            "Practice what you preach.",
+            "Rome wasn't built in a day.",
+            "The grass is always greener on the other side.",
+            "The pot calling the kettle black.",
+            "There's no place like home.",
+            "Think outside the box.",
+            "Two heads are better than one.",
+            "When in Rome, do as the Romans do.",
+            "You can't judge a book by its cover.",
+            "You can't teach an old dog new tricks.",
+            "A bird in the hand is worth two in the bush.",
+            "A rolling stone gathers no moss.",
+            "Absence makes the heart grow fonder.",
+            "Actions speak louder than words.",
+            "All's fair in love and war.",
+            "An eye for an eye, a tooth for a tooth.",
+            "Blood is thicker than water.",
+            "Don't rock the boat.",
+            "Don't take it to heart.",
+            "Don't throw the baby out with the bathwater.",
+            "Easy come, easy go.",
+            "Every rose has its thorn.",
+            "Experience is the best teacher.",
+            "Familiarity breeds contempt.",
+            "Give someone a piece of your mind.",
+            "Haste makes waste.",
+            "In a nutshell.",
+            "Keep your chin up.",
+            "Let bygones be bygones.",
+            "Make a mountain out of a molehill.",
+            "On the same page.",
+            "Practice makes perfect.",
+            "Rain on someone's parade.",
+            "Take it with a grain of salt.",
+            "The devil is in the details.",
+            "The more, the merrier.",
+            "The show must go on.",
+            "Think before you leap.",
+            "Two wrongs don't make a right.",
+            "When the going gets tough, the tough get going.",
+            "You can't have your cake and eat it too.",
+            "You reap what you sow.",
+            "A chain is only as strong as its weakest link.",
+            "A piece of cake.",
+            "A slap on the wrist.",
+            "All or nothing.",
+            "Bite off more than you can chew.",
+            "Burn the midnight oil.",
+            "Cut to the chase.",
+            "Easy as pie.",
+            "Get a kick out of something.",
+            "Give someone the cold shoulder.",
+            "In a nutshell.",
+            "Let the chips fall where they may.",
+            "Make a big deal out of something.",
+            "On cloud nine.",
+            "Practice what you preach.",
+            "Take it for granted.",
+            "The icing on the cake.",
+            "The tip of the iceberg.",
+            "Think outside the box.",
+            "When the dust settles.",
+            "You can't win 'em all."
+        ];
+      
+        let paras = document.getElementById('para');
+        let str = ''
+        //console.log(paragraphs[0].slice(0,20))
+        for (let i = 0; i < paragraphs.length; i++) {
+            str += `<li><a href="#" onclick="loadParagraph(${i})">Paragraph ${i + 1}: ${paragraphs[i].slice(0, 20)}</a></li>`
+        }
+        paras.innerHTML = str
+        let timer = 0;
+        let intervalId;
+        let wordCount = 0;
+        let isTyping = false;
+
+
+        let typingInput = document.getElementById('typing-input');
+        let textToType = document.getElementById('text-to-type');
+        let timerDisplay = document.getElementById('timer');
+        let wpmDisplay = document.getElementById('wpm');
+
+        function loadParagraph(index) {
+            textToType.textContent = paragraphs[index];
+            typingInput.value = '';
+            typingInput.disabled = false;
+            //typingInput.classList.remove('error', 'success');
+            resetTimer();
+            wordCount = textToType.textContent.split(' ').length;
+        }
+
+        typingInput.addEventListener('input', function () {
+            if (!isTyping) {
+                startTimer();
+                isTyping = true;
+            }
+
+            let typedText = typingInput.value;
+            let textToMatch = textToType.textContent.substring(0, typedText.length);
+
+            if (typedText === textToType.textContent) {
+                //typingInput.classList.remove('error');
+                //typingInput.classList.add('success');
+                typingInput.style.outlineColor = 'green'
+
+                stopTimer();
+                nextstring();
+            } else if (typedText === textToMatch) {
+                //typingInput.classList.remove('error');
+                typingInput.style.color = 'green'
+                typingInput.style.outlineColor = 'black'
+            } else {
+                //typingInput.classList.add('error');
+                typingInput.style.color = 'red'
+                typingInput.style.outlineColor = 'red'
+
+
+            }
+        });
+
+        function nextstring() {
+
+            let indstr = textToType.textContent;
+            textToType.textContent = `congrajulation!  next string will apear after 5 sec`;
+
+            //console.log(`congrajulation your typing speed is: ${wpm}`)
+            setTimeout(() => {
+                loadParagraph(paragraphs.indexOf(indstr) + 1);
+
+            }, 5000)
+            //console.log(indstr)
+            //console.log(paragraphs.indexOf(indstr))
+        }
+        function startTimer() {
+            intervalId = setInterval(function () {
+                timer++;
+                timerDisplay.textContent = `Time: ${timer}s`;
+                updateWPM();
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(intervalId);
+            updateWPM();
+
+
+        }
+
+        function resetTimer() {
+            clearInterval(intervalId);
+            timer = 0;
+            isTyping = false;
+            timerDisplay.textContent = 'Time: 0s';
+            wpmDisplay.textContent = 'WPM: 0';
+        }
+
+        function updateWPM() {
+            var wordsTyped = typingInput.value.split(' ').length;
+            var wpm = Math.round((wordsTyped / timer) * 60);
+            //console.log(wpm)
+            wpmDisplay.textContent = `WPM: ${wpm}`;
+        }
+
+    </script>
+</body>
+
+</html>
